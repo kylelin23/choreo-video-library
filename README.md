@@ -10,5 +10,5 @@ Choreo Video Library takes an uploaded dance video and makes it easier to break 
 
 ## Tech Stack
 - Frontend: React/Vite
-- Backend: Flask
+- Backend: Flask/Python
 - Database/Storage: Supabase
