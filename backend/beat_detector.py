@@ -103,13 +103,15 @@ def _binary(name: str) -> str:
             candidates.append(local / "Microsoft" / "WinGet" / "Links" / exe)
             packages = local / "Microsoft" / "WinGet" / "Packages"
             if packages.is_dir():
-                candidates.extend(sorted(packages.glob(f"*/*/bin/{exe}"), reverse=True))
+                candidates.extend(
+                    sorted(packages.glob(f"*/*/bin/{exe}"), reverse=True))
         candidates += [
             Path(r"C:\ProgramData\chocolatey\bin") / exe,
             Path(r"C:\Program Files\ffmpeg\bin") / exe,
         ]
     else:
-        candidates += [Path("/opt/homebrew/bin") / exe, Path("/usr/local/bin") / exe]
+        candidates += [Path("/opt/homebrew/bin") / exe,
+                       Path("/usr/local/bin") / exe]
 
     for candidate in candidates:
         if candidate.is_file():
@@ -148,7 +150,8 @@ def probe(path: Path) -> MediaInfo:
 
     fps = DEFAULT_FPS
     if video_streams:
-        raw = video_streams[0].get("avg_frame_rate") or "0/0"   # e.g. "30000/1001"
+        raw = video_streams[0].get(
+            "avg_frame_rate") or "0/0"   # e.g. "30000/1001"
         try:
             num, _, den = raw.partition("/")
             if float(den or 0) > 0 and float(num) > 0:
@@ -164,7 +167,8 @@ def probe(path: Path) -> MediaInfo:
 
 def _measure_peak_db(path: Path) -> float:
     result = subprocess.run(
-        [_binary("ffmpeg"), "-i", str(path), "-af", "volumedetect", "-vn", "-f", "null", "-"],
+        [_binary("ffmpeg"), "-i", str(path), "-af",
+         "volumedetect", "-vn", "-f", "null", "-"],
         capture_output=True, text=True,
     )
     match = re.search(r"max_volume:\s*(-?[\d.]+) dB", result.stderr)
@@ -194,9 +198,11 @@ def extract_audio(path: Path, out_wav: Path, *, highpass_hz: int | None = 80,
         capture_output=True, text=True,
     )
     if result.returncode != 0:
-        raise AudioExtractionError(f"ffmpeg failed: {result.stderr.strip()[-800:]}")
+        raise AudioExtractionError(
+            f"ffmpeg failed: {result.stderr.strip()[-800:]}")
     if not out_wav.exists() or out_wav.stat().st_size == 0:
-        raise AudioExtractionError("no audio produced - does the file have an audio track?")
+        raise AudioExtractionError(
+            "no audio produced - does the file have an audio track?")
     return out_wav
 
 
@@ -255,7 +261,8 @@ def detect_beats(audio: np.ndarray, sr: int, beats_per_measure: int = 4):
     """
     import librosa
 
-    onset_env = librosa.onset.onset_strength(y=audio, sr=sr, hop_length=HOP_LENGTH)
+    onset_env = librosa.onset.onset_strength(
+        y=audio, sr=sr, hop_length=HOP_LENGTH)
     tempo, beat_frames = librosa.beat.beat_track(
         onset_envelope=onset_env, sr=sr, hop_length=HOP_LENGTH, units="frames")
     beat_frames = np.asarray(beat_frames, dtype=int)
@@ -264,7 +271,8 @@ def detect_beats(audio: np.ndarray, sr: int, beats_per_measure: int = 4):
     if beat_frames.size == 0:
         return [], bpm, False, "no rhythmic pulse detected"
 
-    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=HOP_LENGTH)
+    beat_times = librosa.frames_to_time(
+        beat_frames, sr=sr, hop_length=HOP_LENGTH)
     strengths = _sample_envelope(onset_env, beat_frames)
 
     low_env, bass_share = _low_band_energy(audio, sr)
@@ -284,7 +292,8 @@ def detect_beats(audio: np.ndarray, sr: int, beats_per_measure: int = 4):
         normalised = scores / total
         order = np.argsort(normalised)[::-1]
         phase = int(order[0])
-        margin = float(normalised[order[0]] - normalised[order[1]]) if n > 1 else 1.0
+        margin = float(normalised[order[0]] -
+                       normalised[order[1]]) if n > 1 else 1.0
 
     confidences = _score_beats(strengths, beat_times)
     beats = [
@@ -309,7 +318,8 @@ def _score_beats(strengths: np.ndarray, beat_times: np.ndarray) -> np.ndarray:
     as a ranking, not a calibrated number.
     """
     ref = np.percentile(strengths, 90) if strengths.size else 0.0
-    salience = np.clip(strengths / ref, 0.0, 1.0) if ref > 0 else np.zeros_like(strengths)
+    salience = np.clip(strengths / ref, 0.0,
+                       1.0) if ref > 0 else np.zeros_like(strengths)
     if beat_times.size < 3:
         return salience
 
@@ -383,7 +393,8 @@ def reanchor(beats: list[RawBeat], anchor_sec: float,
                      key=lambda i: abs(beats[i].timestamp_sec - anchor_sec))
     return [
         b if i < anchor_idx else
-        RawBeat(b.timestamp_sec, (i - anchor_idx) % beats_per_measure + 1, b.confidence)
+        RawBeat(b.timestamp_sec, (i - anchor_idx) %
+                beats_per_measure + 1, b.confidence)
         for i, b in enumerate(beats)
     ]
 
@@ -445,7 +456,8 @@ def analyze(path: Path, *, fps_override: float | None = None,
         # relabel the beats so the anchor becomes a downbeat, *and* re-phase the
         # grouping so that downbeat opens an 8-count.
         beats = reanchor(beats, anchor_sec)
-        anchor_sec = min(beats, key=lambda b: abs(b.timestamp_sec - anchor_sec)).timestamp_sec
+        anchor_sec = min(beats, key=lambda b: abs(
+            b.timestamp_sec - anchor_sec)).timestamp_sec
         confident = True  # a hand-placed anchor overrides the detector's doubt
 
     groups = group_into_eight_counts(beats, 4, anchor_sec=anchor_sec)
@@ -455,7 +467,8 @@ def analyze(path: Path, *, fps_override: float | None = None,
         flags.append({"count_index": -1, "reason": "no_beats_detected",
                       "detail": "no rhythmic pulse - ballad, a cappella, or rubato"})
     elif not confident:
-        flags.append({"count_index": -1, "reason": "low_confidence", "detail": notes})
+        flags.append(
+            {"count_index": -1, "reason": "low_confidence", "detail": notes})
 
     eight_counts: list[dict[str, Any]] = []
     durations: list[tuple[int, float]] = []
@@ -478,7 +491,7 @@ def analyze(path: Path, *, fps_override: float | None = None,
         if avg_conf < LOW_CONFIDENCE_THRESHOLD:
             flags.append({"count_index": idx, "reason": "low_confidence",
                           "detail": f"average beat confidence {avg_conf:.2f} below "
-                                    f"{LOW_CONFIDENCE_THRESHOLD}",
+                          f"{LOW_CONFIDENCE_THRESHOLD}",
                           "avg_confidence": round(avg_conf, 4)})
             needs_review = True
 
@@ -500,7 +513,7 @@ def analyze(path: Path, *, fps_override: float | None = None,
         if prev_d > 0 and abs(d - prev_d) / prev_d > TEMPO_DISCONTINUITY_RATIO:
             flags.append({"count_index": i, "reason": "tempo_discontinuity",
                           "detail": f"8-count spans {d:.2f}s vs {prev_d:.2f}s for "
-                                    f"#{prev_i} - possible tempo change"})
+                          f"#{prev_i} - possible tempo change"})
             eight_counts[i]["needs_review"] = True
 
     return AnalysisResult(
@@ -622,10 +635,12 @@ def main(argv: list[str] | None = None) -> int:
     common.add_argument("--anchor", type=float, default=None,
                         help="treat the beat nearest this timestamp as a downbeat")
 
-    p = sub.add_parser("counts", parents=[common], help="print a readable count sheet")
+    p = sub.add_parser("counts", parents=[
+                       common], help="print a readable count sheet")
     p.add_argument("--limit", type=int, default=20)
 
-    p = sub.add_parser("analyze", parents=[common], help="emit the full JSON timeline")
+    p = sub.add_parser("analyze", parents=[
+                       common], help="emit the full JSON timeline")
     p.add_argument("-o", "--output")
 
     p = sub.add_parser("preview", parents=[common],
