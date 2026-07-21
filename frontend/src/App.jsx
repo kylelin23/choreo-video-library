@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Auth from "./Auth.jsx";
-import UploadDance from "./UploadDance.jsx";
-import Home from "./Home.jsx";
-import "./App.css";
+import Auth from "./pages/Auth.jsx";
+import UploadDance from "./pages/UploadDance.jsx";
+import Home from "./pages/Home.jsx";
+import "./index.css";
 
 function App() {
   const [email, setEmail] = useState("");

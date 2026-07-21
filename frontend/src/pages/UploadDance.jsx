@@ -1,4 +1,4 @@
-import "./App.css";
+import "../index.css";
 import "./UploadDance.css";
 
 function UploadDance({ email, onLogout, onUploadDance }) {

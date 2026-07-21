@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import "./App.css";
+import "../index.css";
 import "./Auth.css";
 
 function Auth({ mode, email, setEmail, onSuccess }) {
   const handleSubmit = (e) => {
     e.preventDefault();
-    // no real auth 
+    // no real auth
     onSuccess();
   };
 
