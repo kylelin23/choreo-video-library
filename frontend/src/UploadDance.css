@@ -1,0 +1,85 @@
+.subtitle {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+button {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+button:hover {
+  background: #333;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.home-card {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 640px;
+}
+
+.home-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.home-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.logout-btn {
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.upload-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.library h2 {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+}
+
+.library-empty {
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #999;
+}
+
+.library-empty p {
+  margin: 0;
+}
