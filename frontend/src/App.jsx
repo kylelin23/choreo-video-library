@@ -1,13 +1,26 @@
-import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Auth from "./pages/Auth.jsx";
 import UploadDance from "./pages/UploadDance.jsx";
 import Home from "./pages/Home.jsx";
+import { me as apiMe } from "./lib/api";
 import "./index.css";
 
 function App() {
   const [email, setEmail] = useState("");
+  const [checkedSession, setCheckedSession] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    apiMe()
+      .then((data) => setEmail(data.email || ""))
+      .catch(() => {})
+      .finally(() => setCheckedSession(true));
+  }, []);
+
+  if (!checkedSession) {
+    return null; 
+  }
 
   const handleLogout = () => {
     setEmail("");
@@ -41,11 +54,15 @@ function App() {
       <Route
         path="/upload-dance"
         element={
-          <UploadDance
-            email={email}
-            onLogout={handleLogout}
-            onUploadDance={() => navigate("/home")}
-          />
+          email ? (
+            <UploadDance
+              email={email}
+              onLogout={handleLogout}
+              onUploadDance={() => navigate("/home")}
+            />
+          ) : (
+            <Navigate to="/" replace />
+          )
         }
       />
       <Route path="/home" element={<Home />} />

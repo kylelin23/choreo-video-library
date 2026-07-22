@@ -1,7 +1,13 @@
 import "../index.css";
 import "./UploadDance.css";
+import { logout as apiLogout } from "../lib/api";
 
 function UploadDance({ email, onLogout, onUploadDance }) {
+  const handleLogout = async () => {
+    await apiLogout();
+    onLogout();
+  };
+
   return (
     <div className="page">
       <div className="home-card">
@@ -12,7 +18,7 @@ function UploadDance({ email, onLogout, onUploadDance }) {
               {email ? `Signed in as ${email}` : "Welcome back"}
             </p>
           </div>
-          <button className="logout-btn" onClick={onLogout}>
+          <button className="logout-btn" onClick={handleLogout}>
             Log out
           </button>
         </header>
