@@ -1,12 +1,34 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import "../index.css";
+import { login, register } from "../lib/api";
 import "./Auth.css";
 
 function Auth({ mode, email, setEmail, onSuccess }) {
-  const handleSubmit = (e) => {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // no real auth
-    onSuccess();
+    setError(null);
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        await login(email, password);
+        onSuccess();
+      } else {
+        const result = await register(email, password);
+        if (result.email) {
+          onSuccess();
+        } else {
+          setError("Check your email to confirm your account, then log in.");
+        }
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,11 +53,24 @@ function Auth({ mode, email, setEmail, onSuccess }) {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <input type="password" placeholder="Password" required />
-          <button type="submit">
-            {mode === "login" ? "Log in" : "Sign up"}
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading
+              ? "Please wait..."
+              : mode === "login"
+                ? "Log in"
+                : "Sign up"}
           </button>
         </form>
+
+        {error && <p className="error">{error}</p>}
+
         <p className="switch">
           {mode === "login" ? (
             <>

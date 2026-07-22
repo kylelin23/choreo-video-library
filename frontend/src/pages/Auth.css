@@ -69,6 +69,17 @@ button:hover {
   background: #333;
 }
 
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: #c0392b;
+}
+
 .switch {
   margin: 1.25rem 0 0;
   font-size: 0.9rem;
