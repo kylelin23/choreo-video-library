@@ -21,7 +21,7 @@ src/
 
 
 ### Backend
-The backend is built with Flask and handles authentication and video upload. The authentication is handled by adding a new row in Supabase each time a new user is created. When a new video is uploaded, video information is stored in Supabase and the actual video file is stored in Supabase Storage. The video processing is then handled with a thread running in the background so the client does not have to wait too long for the response. After the video processing is finished, the frontend is then notified by Supabase Realtime, allowing for the client to view the processed video.
+The backend is built with Flask and handles authentication and video upload. Authentication is handled by Supabase Auth. When a user signs in or signs up, the Flask backend calls Supabase's sign-up/sign-in API. The email verification is handled with a custom SMTP (Resend) to avoid Supabase rate limiting. When a new video is uploaded, video information is stored in Supabase and the actual video file is stored in Supabase Storage. The video processing is then handled with a thread running in the background so the client does not have to wait too long for the response. After the video processing is finished, the frontend is then notified by Supabase Realtime, allowing for the client to view the processed video.
 
 ### Model
 The model handles the video processing. (Patrick add to this later)
